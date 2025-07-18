@@ -365,14 +365,15 @@
                 // Show team selection
                 document.getElementById('teamSelection').classList.add('show');
                 
-                // Reset team selection
+                // Reset team selection and set CT as default
                 document.querySelectorAll('.team-btn').forEach(btn => {
                     btn.classList.remove('active');
                 });
-                this.currentTeam = null;
+                document.querySelector('[data-team="ct"]').classList.add('active');
+                this.currentTeam = 'ct';
                 
-                // Clear cards
-                this.clearCards();
+                // Load cards for CT team
+                this.loadCards();
             }
 
             selectTeam(teamName) {
