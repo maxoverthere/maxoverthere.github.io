@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS2 Maps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0a0a0a;
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            background-color: #1a1a1a;
+            padding: 1rem 0;
+            border-bottom: 2px solid #333;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        .nav-item {
+            padding: 0.8rem 1.5rem;
+            background-color: #2a2a2a;
+            border: 2px solid #444;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .nav-item:hover {
+            background-color: #3a3a3a;
+            border-color: #666;
+            transform: translateY(-2px);
+        }
+
+        .nav-item.active {
+            background-color: #ff6b35;
+            border-color: #ff6b35;
+            color: #000;
+        }
+
+        /* Team Selection */
+        .team-selection {
+            display: none;
+            justify-content: center;
+            gap: 2rem;
+            padding: 2rem 0;
+            background-color: #151515;
+            border-bottom: 1px solid #333;
+        }
+
+        .team-selection.show {
+            display: flex;
+        }
+
+        .team-btn {
+            padding: 1rem 3rem;
+            background-color: transparent;
+            border: 3px solid #444;
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            border-radius: 0;
+            text-transform: uppercase;
+        }
+
+        .team-btn.ct {
+            border-color: #4a90e2;
+        }
+
+        .team-btn.t {
+            border-color: #e2a84a;
+        }
+
+        .team-btn.ct:hover,
+        .team-btn.ct.active {
+            background-color: #4a90e2;
+            color: #000;
+        }
+
+        .team-btn.t:hover,
+        .team-btn.t.active {
+            background-color: #e2a84a;
+            color: #000;
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .card {
+            background-color: #1a1a1a;
+            border: 2px solid #333;
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            border-color: #ff6b35;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.3);
+        }
+
+        .card-image {
+            width: 100%;
+            height: 200px;
+            background-color: #2a2a2a;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #666;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .card:hover .card-image {
+            background-color: #3a3a3a;
+            transform: scale(1.05);
+        }
+
+        .card-title {
+            margin-top: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-align: center;
+            color: #ccc;
+        }
+
+        /* Hidden content for preloading */
+        .preload-content {
+            display: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+
+            .nav-item {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .team-selection {
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .team-btn {
+                padding: 0.8rem 2rem;
+                font-size: 1rem;
+            }
+
+            .cards-container {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-item" data-map="vertigo">Vertigo</div>
+            <div class="nav-item" data-map="mirage">Mirage</div>
+            <div class="nav-item" data-map="inferno">Inferno</div>
+            <div class="nav-item" data-map="overpass">Overpass</div>
+            <div class="nav-item" data-map="nuke">Nuke</div>
+        </div>
+    </nav>
+
+    <!-- Team Selection -->
+    <div class="team-selection" id="teamSelection">
+        <button class="team-btn ct" data-team="ct">CT</button>
+        <button class="team-btn t" data-team="t">T</button>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="cards-container" id="cardsContainer">
+            <!-- Cards will be generated by JavaScript -->
+        </div>
+    </main>
+
+    <!-- Preload content for all maps and teams -->
+    <div class="preload-content">
+        <!-- This ensures all content is loaded without additional requests -->
+        <div id="preload-data"></div>
+    </div>
+
+    <script>
+        class CS2MapsWebsite {
+            constructor() {
+                this.currentMap = null;
+                this.currentTeam = null;
+                this.mapData = {
+                    vertigo: {
+                        ct: [
+                            { title: "A Site Default", image1: "placeholder1.jpg", image2: "placeholder2.jpg" },
+                            { title: "B Site Setup", image1: "placeholder3.jpg", image2: "placeholder4.jpg" },
+                            { title: "Mid Control", image1: "placeholder5.jpg", image2: "placeholder6.jpg" },
+                            { title: "Ramp Position", image1: "placeholder7.jpg", image2: "placeholder8.jpg" },
+                            { title: "Connector Hold", image1: "placeholder9.jpg", image2: "placeholder10.jpg" },
+                            { title: "Upper Tunnels", image1: "placeholder11.jpg", image2: "placeholder12.jpg" }
+                        ],
+                        t: [
+                            { title: "A Site Execute", image1: "placeholder13.jpg", image2: "placeholder14.jpg" },
+                            { title: "B Site Rush", image1: "placeholder15.jpg", image2: "placeholder16.jpg" },
+                            { title: "Mid Take", image1: "placeholder17.jpg", image2: "placeholder18.jpg" },
+                            { title: "Ramp Rush", image1: "placeholder19.jpg", image2: "placeholder20.jpg" },
+                            { title: "Split Execute", image1: "placeholder21.jpg", image2: "placeholder22.jpg" },
+                            { title: "Lower Tunnels", image1: "placeholder23.jpg", image2: "placeholder24.jpg" }
+                        ]
+                    },
+                    mirage: {
+                        ct: [
+                            { title: "A Site Default", image1: "placeholder25.jpg", image2: "placeholder26.jpg" },
+                            { title: "B Site Setup", image1: "placeholder27.jpg", image2: "placeholder28.jpg" },
+                            { title: "Mid Control", image1: "placeholder29.jpg", image2: "placeholder30.jpg" },
+                            { title: "Connector Hold", image1: "placeholder31.jpg", image2: "placeholder32.jpg" },
+                            { title: "Palace Watch", image1: "placeholder33.jpg", image2: "placeholder34.jpg" },
+                            { title: "Jungle Position", image1: "placeholder35.jpg", image2: "placeholder36.jpg" }
+                        ],
+                        t: [
+                            { title: "A Site Execute", image1: "placeholder37.jpg", image2: "placeholder38.jpg" },
+                            { title: "B Site Rush", image1: "placeholder39.jpg", image2: "placeholder40.jpg" },
+                            { title: "Mid Control", image1: "placeholder41.jpg", image2: "placeholder42.jpg" },
+                            { title: "Palace Rush", image1: "placeholder43.jpg", image2: "placeholder44.jpg" },
+                            { title: "Underpass Play", image1: "placeholder45.jpg", image2: "placeholder46.jpg" },
+                            { title: "Connector Push", image1: "placeholder47.jpg", image2: "placeholder48.jpg" }
+                        ]
+                    },
+                    inferno: {
+                        ct: [
+                            { title: "A Site Default", image1: "placeholder49.jpg", image2: "placeholder50.jpg" },
+                            { title: "B Site Setup", image1: "placeholder51.jpg", image2: "placeholder52.jpg" },
+                            { title: "Mid Control", image1: "placeholder53.jpg", image2: "placeholder54.jpg" },
+                            { title: "Banana Hold", image1: "placeholder55.jpg", image2: "placeholder56.jpg" },
+                            { title: "Arch Position", image1: "placeholder57.jpg", image2: "placeholder58.jpg" },
+                            { title: "Balcony Watch", image1: "placeholder59.jpg", image2: "placeholder60.jpg" }
+                        ],
+                        t: [
+                            { title: "A Site Execute", image1: "placeholder61.jpg", image2: "placeholder62.jpg" },
+                            { title: "B Site Rush", image1: "placeholder63.jpg", image2: "placeholder64.jpg" },
+                            { title: "Mid Control", image1: "placeholder65.jpg", image2: "placeholder66.jpg" },
+                            { title: "Banana Take", image1: "placeholder67.jpg", image2: "placeholder68.jpg" },
+                            { title: "Apartments Rush", image1: "placeholder69.jpg", image2: "placeholder70.jpg" },
+                            { title: "Balcony Push", image1: "placeholder71.jpg", image2: "placeholder72.jpg" }
+                        ]
+                    },
+                    overpass: {
+                        ct: [
+                            { title: "A Site Default", image1: "placeholder73.jpg", image2: "placeholder74.jpg" },
+                            { title: "B Site Setup", image1: "placeholder75.jpg", image2: "placeholder76.jpg" },
+                            { title: "Long Control", image1: "placeholder77.jpg", image2: "placeholder78.jpg" },
+                            { title: "Short Hold", image1: "placeholder79.jpg", image2: "placeholder80.jpg" },
+                            { title: "Connector Watch", image1: "placeholder81.jpg", image2: "placeholder82.jpg" },
+                            { title: "Monster Position", image1: "placeholder83.jpg", image2: "placeholder84.jpg" }
+                        ],
+                        t: [
+                            { title: "A Site Execute", image1: "placeholder85.jpg", image2: "placeholder86.jpg" },
+                            { title: "B Site Rush", image1: "placeholder87.jpg", image2: "placeholder88.jpg" },
+                            { title: "Long Take", image1: "placeholder89.jpg", image2: "placeholder90.jpg" },
+                            { title: "Short Rush", image1: "placeholder91.jpg", image2: "placeholder92.jpg" },
+                            { title: "Connector Push", image1: "placeholder93.jpg", image2: "placeholder94.jpg" },
+                            { title: "Monster Rush", image1: "placeholder95.jpg", image2: "placeholder96.jpg" }
+                        ]
+                    },
+                    nuke: {
+                        ct: [
+                            { title: "A Site Default", image1: "placeholder97.jpg", image2: "placeholder98.jpg" },
+                            { title: "B Site Setup", image1: "placeholder99.jpg", image2: "placeholder100.jpg" },
+                            { title: "Upper Control", image1: "placeholder101.jpg", image2: "placeholder102.jpg" },
+                            { title: "Lower Hold", image1: "placeholder103.jpg", image2: "placeholder104.jpg" },
+                            { title: "Ramp Position", image1: "placeholder105.jpg", image2: "placeholder106.jpg" },
+                            { title: "Hut Watch", image1: "placeholder107.jpg", image2: "placeholder108.jpg" }
+                        ],
+                        t: [
+                            { title: "A Site Execute", image1: "placeholder109.jpg", image2: "placeholder110.jpg" },
+                            { title: "B Site Rush", image1: "placeholder111.jpg", image2: "placeholder112.jpg" },
+                            { title: "Upper Take", image1: "placeholder113.jpg", image2: "placeholder114.jpg" },
+                            { title: "Lower Rush", image1: "placeholder115.jpg", image2: "placeholder116.jpg" },
+                            { title: "Ramp Rush", image1: "placeholder117.jpg", image2: "placeholder118.jpg" },
+                            { title: "Outside Push", image1: "placeholder119.jpg", image2: "placeholder120.jpg" }
+                        ]
+                    }
+                };
+                
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+                this.preloadAllContent();
+            }
+
+            bindEvents() {
+                // Map navigation
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        const map = e.target.dataset.map;
+                        this.selectMap(map);
+                    });
+                });
+
+                // Team selection
+                document.querySelectorAll('.team-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const team = e.target.dataset.team;
+                        this.selectTeam(team);
+                    });
+                });
+            }
+
+            selectMap(mapName) {
+                // Update active map
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                document.querySelector(`[data-map="${mapName}"]`).classList.add('active');
+                
+                this.currentMap = mapName;
+                
+                // Show team selection
+                document.getElementById('teamSelection').classList.add('show');
+                
+                // Reset team selection
+                document.querySelectorAll('.team-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                this.currentTeam = null;
+                
+                // Clear cards
+                this.clearCards();
+            }
+
+            selectTeam(teamName) {
+                // Update active team
+                document.querySelectorAll('.team-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`[data-team="${teamName}"]`).classList.add('active');
+                
+                this.currentTeam = teamName;
+                
+                // Load cards for current map and team
+                this.loadCards();
+            }
+
+            loadCards() {
+                if (!this.currentMap || !this.currentTeam) return;
+                
+                const cardsData = this.mapData[this.currentMap][this.currentTeam];
+                const container = document.getElementById('cardsContainer');
+                
+                container.innerHTML = '';
+                
+                cardsData.forEach(cardData => {
+                    const card = this.createCard(cardData);
+                    container.appendChild(card);
+                });
+            }
+
+            createCard(cardData) {
+                const card = document.createElement('div');
+                card.className = 'card';
+                
+                card.innerHTML = `
+                    <div class="card-image">
+                        <span>Image Placeholder</span>
+                    </div>
+                    <div class="card-title">${cardData.title}</div>
+                `;
+                
+                // Add hover effects
+                const cardImage = card.querySelector('.card-image');
+                let isHovered = false;
+                
+                card.addEventListener('mouseenter', () => {
+                    isHovered = true;
+                    cardImage.style.backgroundColor = '#444';
+                    cardImage.innerHTML = '<span>Hover Image</span>';
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    isHovered = false;
+                    cardImage.style.backgroundColor = '#2a2a2a';
+                    cardImage.innerHTML = '<span>Image Placeholder</span>';
+                });
+                
+                return card;
+            }
+
+            clearCards() {
+                document.getElementById('cardsContainer').innerHTML = '';
+            }
+
+            preloadAllContent() {
+                // This simulates preloading all content
+                // In a real implementation, you would preload actual images here
+                console.log('All content preloaded');
+            }
+        }
+
+        // Initialize the website when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new CS2MapsWebsite();
+        });
+    </script>
+</body>
+</html>
